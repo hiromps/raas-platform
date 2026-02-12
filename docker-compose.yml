@@ -1,0 +1,12 @@
+services:
+  ws-scrcpy:
+    image: haris132/ws-scrcpy
+    container_name: raas-ws-scrcpy
+    network_mode: host
+    restart: always
+    environment:
+      - ADB_SERVER_SOCKET=tcp:127.0.0.1:5037
+    volumes:
+      - /usr/bin/adb:/usr/bin/adb:ro
+      - /usr/lib/aarch64-linux-gnu/android:/usr/lib/aarch64-linux-gnu/android:ro
+      - /home/hiropi4/.android:/root/.android:ro

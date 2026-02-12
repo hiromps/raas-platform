@@ -1,0 +1,27 @@
+{
+  "devices": [
+    {
+      "id": "iphone151",
+      "name": "iPhone 8",
+      "os": "ios",
+      "ip": "100.126.108.117",
+      "user": "mobile",
+      "type": "jailbroken"
+    },
+    {
+      "id": "android1",
+      "name": "Android Device 1",
+      "os": "android",
+      "ip": "100.104.203.40",
+      "port": "37743",
+      "type": "rooted"
+    },
+    {
+      "id": "android2",
+      "name": "Android Device 2",
+      "os": "android",
+      "ip": "100.86.154.59",
+      "type": "rooted"
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RaaS Dashboard - ⚡んーちゃん</title>
+    <style>
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: #0f172a; color: #f8fafc; margin: 0; padding: 20px; }
+        .header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 20px; border-bottom: 1px solid #1e293b; margin-bottom: 20px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .device-card { background: #1e293b; border-radius: 12px; padding: 15px; border: 1px solid #334155; }
+        .device-card h2 { margin: 0 0 10px 0; font-size: 1.2rem; display: flex; align-items: center; justify-content: space-between; }
+        .status-badge { font-size: 0.75rem; padding: 4px 8px; border-radius: 999px; background: #22c55e; color: white; }
+        .screen-container { background: #000; border-radius: 8px; overflow: hidden; aspect-ratio: 9/16; position: relative; }
+        .screen-container img { width: 100%; height: 100%; object-fit: contain; }
+        .device-info { margin-top: 10px; font-size: 0.85rem; color: #94a3b8; }
+        .refresh-btn { background: #3b82f6; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .refresh-btn:hover { background: #2563eb; }
+    </style>
+    <script>
+        function refreshImages() {
+            const imgs = document.querySelectorAll('img');
+            imgs.forEach(img => {
+                const src = img.src.split('?')[0];
+                img.src = src + '?t=' + new Date().getTime();
+            });
+        }
+        // 更新頻度を5秒に戻してサーバー負荷を軽減
+        setInterval(refreshImages, 5000);
+    </script>
+</head>
+<body>
+    <div class="header">
+        <h1>👾 RaaS フリート監視システム</h1>
+        <button class="refresh-btn" onclick="refreshImages()">今すぐ更新</button>
+    </div>
+    <div class="grid">
+        <!-- iPhone 151 -->
+        <div class="device-card">
+            <h2>iPhone 151 <span class="status-badge">ONLINE</span></h2>
+            <div class="screen-container">
+                <img src="public/screenshots/iphone151.png" alt="iPhone 151">
+            </div>
+            <div class="device-info">
+                IP: 100.126.108.117 | iOS 15.x | AutoTouch
+            </div>
+        </div>
+        <!-- Android 1 -->
+        <div class="device-card">
+            <h2>Android 1 <span class="status-badge">ONLINE</span></h2>
+            <div class="screen-container">
+                <img src="public/screenshots/android1.png" alt="Android 1">
+            </div>
+            <div class="device-info">
+                IP: 100.104.203.40 | Rooted | AnkuLua
+            </div>
+        </div>
+        <!-- Android 2 -->
+        <div class="device-card">
+            <h2>Android 2 <span class="status-badge">ONLINE</span></h2>
+            <div class="screen-container">
+                <img src="public/screenshots/android2.png" alt="Android 2">
+            </div>
+            <div class="device-info">
+                IP: 100.86.154.59 | Rooted | AnkuLua
+            </div>
+        </div>
+    </div>
+</body>
+</html>
