@@ -4,48 +4,193 @@
     <meta charset="UTF-8">
     <title>RaaS Live Grid - んーちゃん</title>
     <style>
-        body { background: #000; color: #fff; margin: 0; padding: 10px; font-family: sans-serif; overflow: hidden; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 10px; height: 95vh; }
-        .stream-container { position: relative; border: 2px solid #333; border-radius: 8px; overflow: hidden; background: #111; }
+        :root {
+            --bg: #000;
+            --panel: #111;
+            --border: #333;
+            --active: #3b82f6;
+        }
+        body { background: var(--bg); color: #fff; margin: 0; padding: 10px; font-family: sans-serif; overflow: hidden; }
+        .toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        .toolbar-group { display: flex; gap: 8px; flex-wrap: wrap; }
+        .btn {
+            border: 1px solid #555;
+            background: #1f2937;
+            color: #fff;
+            border-radius: 6px;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .btn.active { border-color: var(--active); background: #1d4ed8; }
+
+        .layout-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 10px; height: calc(95vh - 52px); }
+        .stream-container { position: relative; border: 2px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--panel); }
         .stream-container iframe { width: 100%; height: 100%; border: none; }
         .label { position: absolute; top: 5px; left: 10px; background: rgba(0,0,0,0.7); padding: 2px 8px; border-radius: 4px; font-size: 12px; z-index: 10; pointer-events: none; }
         .ios-screen { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
         .ios-screen img { max-width: 100%; max-height: 100%; object-fit: contain; }
+
+        .layout-focus { display: none; height: calc(95vh - 52px); }
+        .layout-focus.active { display: block; }
+        .focus-stage {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            background: #000;
+        }
+        .focus-layer {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 180ms ease-in-out;
+        }
+        .focus-layer.active {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+        .focus-layer iframe,
+        .focus-layer .ios-screen { width: 100%; height: 100%; border: none; }
+        .focus-name {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.7);
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            z-index: 20;
+        }
     </style>
 </head>
 <body>
-    <div class="grid">
-        <!-- Android 1 -->
+    <div class="toolbar">
+        <div class="toolbar-group">
+            <button class="btn" id="mode-grid">Grid</button>
+            <button class="btn active" id="mode-focus">Focus</button>
+        </div>
+        <div class="toolbar-group" id="focus-switches">
+            <button class="btn active" data-target="local">Local</button>
+            <button class="btn" data-target="a1">A1</button>
+            <button class="btn" data-target="a2">A2</button>
+            <button class="btn" data-target="ios">iPhone</button>
+        </div>
+    </div>
+
+    <div class="layout-grid" id="layout-grid" style="display:none;">
         <div class="stream-container">
             <div class="label">Android 1 (100.104.203.40)</div>
             <iframe src="/#!action=stream&udid=100.104.203.40:37743&player=mse"></iframe>
         </div>
 
-        <!-- Android 2 -->
         <div class="stream-container">
             <div class="label">Android 2 (100.86.154.59)</div>
             <iframe src="/#!action=stream&udid=100.86.154.59:41469&player=mse"></iframe>
         </div>
 
-        <!-- Android (USB/Local) -->
         <div class="stream-container">
             <div class="label">Android Local (9ACAY1CX2C)</div>
             <iframe src="/#!action=stream&udid=9ACAY1CX2C&player=mse"></iframe>
         </div>
 
-        <!-- iPhone 151 -->
         <div class="stream-container">
             <div class="label">iPhone 151 (100.126.108.117)</div>
             <div class="ios-screen">
-                <img id="iphone-img" src="public/screenshots/iphone151.png" alt="iPhone 151">
+                <img id="iphone-img-grid" src="public/screenshots/iphone151.png" alt="iPhone 151">
             </div>
         </div>
     </div>
+
+    <div class="layout-focus active" id="layout-focus">
+        <div class="focus-stage">
+            <div class="focus-name" id="focus-name">Android Local (9ACAY1CX2C)</div>
+
+            <div class="focus-layer active" data-layer="local">
+                <iframe src="/#!action=stream&udid=9ACAY1CX2C&player=mse"></iframe>
+            </div>
+            <div class="focus-layer" data-layer="a1">
+                <iframe src="/#!action=stream&udid=100.104.203.40:37743&player=mse"></iframe>
+            </div>
+            <div class="focus-layer" data-layer="a2">
+                <iframe src="/#!action=stream&udid=100.86.154.59:41469&player=mse"></iframe>
+            </div>
+            <div class="focus-layer" data-layer="ios">
+                <div class="ios-screen">
+                    <img id="iphone-img-focus" src="public/screenshots/iphone151.png" alt="iPhone 151" />
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // iPhoneのスクショだけ定期更新
+        const names = {
+            local: 'Android Local (9ACAY1CX2C)',
+            a1: 'Android 1 (100.104.203.40)',
+            a2: 'Android 2 (100.86.154.59)',
+            ios: 'iPhone 151 (100.126.108.117)'
+        };
+
+        const modeGridBtn = document.getElementById('mode-grid');
+        const modeFocusBtn = document.getElementById('mode-focus');
+        const layoutGrid = document.getElementById('layout-grid');
+        const layoutFocus = document.getElementById('layout-focus');
+        const focusName = document.getElementById('focus-name');
+        const switchButtons = document.querySelectorAll('#focus-switches .btn');
+        const layers = document.querySelectorAll('.focus-layer');
+
+        function setMode(mode) {
+            const isFocus = mode === 'focus';
+            layoutGrid.style.display = isFocus ? 'none' : 'grid';
+            layoutFocus.classList.toggle('active', isFocus);
+            modeFocusBtn.classList.toggle('active', isFocus);
+            modeGridBtn.classList.toggle('active', !isFocus);
+        }
+
+        function switchFocus(target) {
+            layers.forEach(layer => {
+                layer.classList.toggle('active', layer.dataset.layer === target);
+            });
+            switchButtons.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.target === target);
+            });
+            focusName.textContent = names[target] || target;
+        }
+
+        modeGridBtn.addEventListener('click', () => setMode('grid'));
+        modeFocusBtn.addEventListener('click', () => setMode('focus'));
+        switchButtons.forEach(btn => {
+            btn.addEventListener('click', () => switchFocus(btn.dataset.target));
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'g') setMode('grid');
+            if (e.key === 'f') setMode('focus');
+            if (e.key === '1') switchFocus('local');
+            if (e.key === '2') switchFocus('a1');
+            if (e.key === '3') switchFocus('a2');
+            if (e.key === '4') switchFocus('ios');
+        });
+
+        setMode('focus');
+        switchFocus('local');
+
         setInterval(() => {
-            const img = document.getElementById('iphone-img');
-            img.src = 'public/screenshots/iphone151.png?t=' + new Date().getTime();
+            const now = new Date().getTime();
+            document.getElementById('iphone-img-grid').src = `public/screenshots/iphone151.png?t=${now}`;
+            document.getElementById('iphone-img-focus').src = `public/screenshots/iphone151.png?t=${now}`;
         }, 2000);
     </script>
 </body>
