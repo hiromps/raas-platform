@@ -13,12 +13,10 @@ scp mobile@100.126.108.117:/var/mobile/tmp_screen.png "$BASE_DIR/iphone151.png" 
 
 # Android 1
 echo "[*] Capturing Android 1..."
-adb -s 100.104.203.40:37743 shell screencap -p /sdcard/screen.png
-adb -s 100.104.203.40:37743 pull /sdcard/screen.png "$BASE_DIR/android1.png"
+adb -s 100.104.203.40:37743 exec-out screencap -p > "$BASE_DIR/android1.png"
 
 # Android 2
 echo "[*] Capturing Android 2..."
-adb -s 100.86.154.59:41469 shell screencap -p /sdcard/screen.png
-adb -s 100.86.154.59:41469 pull /sdcard/screen.png "$BASE_DIR/android2.png"
+adb -s 100.86.154.59:41469 exec-out screencap -p > "$BASE_DIR/android2.png"
 
 echo "[!] Done. Dashboard updated."
