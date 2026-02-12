@@ -3,6 +3,8 @@ dist/
 *.log
 .DS_Store
 .env
+__pycache__/
+*.pyc
 ws-scrcpy-native/dist/
 ws-scrcpy-native/node_modules/
 ws-scrcpy-native/vendor/
