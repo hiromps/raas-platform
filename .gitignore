@@ -9,3 +9,4 @@ ws-scrcpy-native/dist/
 ws-scrcpy-native/node_modules/
 ws-scrcpy-native/vendor/
 android_keys/adbkey*
+.vercel
